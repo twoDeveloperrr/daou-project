@@ -1,0 +1,11 @@
+- name: Node Port Install
+  hosts: nodeporter_host
+  gather_facts: false
+
+  tasks:
+  - name: Install prometheus-node-exporter
+    shell: sudo apt-get install prometheus-node-exporter -y
+  - name: Enable prometheus-node-exporter
+    shell: sudo systemctl --now enable prometheus-node-exporter
+  - name: Start prometheus-node-exporter
+    shell: sudo systemctl --now start prometheus-node-exporter
