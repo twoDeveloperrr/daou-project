@@ -18,7 +18,7 @@ pipeline {
         }
 
 	stage('SSH transfer') {
-	    steps([$class: 'BapSshPromotionPublisherPlugin]){
+	    steps([$class: 'BapSshPromotionPublisherPlugin']){
 		sshPublisher(
 		    continueOnError: false, failOnError: true,
 		    publishers: [
