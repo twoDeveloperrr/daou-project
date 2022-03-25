@@ -27,8 +27,8 @@ pipeline {
 			    verbose: true,
 			    transfers: [
 				sshTransfer(
-				    sourceFiles: "playbook/prometheus-install-nodeporter.yaml",
-				    removePrefix: "playbook",
+				    sourceFiles: "/home/ubuntu/playbook/prometheus-install-nodeporter.yaml",
+				    removePrefix: "/home/ubuntu/playbook",
 				    remoteDirectory: "",
 				    execCommand: "ansible-playbook prometheus-install-nodeporter.yaml"
 				)
@@ -44,8 +44,8 @@ pipeline {
 			    verbose: true,
 			    transfers: [
 				sshTransfer(
-				    sourceFiles: "prometheus/**",
-				    removePrefix: "prometheus",
+				    sourceFiles: "/home/ubuntu/prometheus/**",
+				    removePrefix: "/home/ubuntu/prometheus",
 				    remoteDirectory: "",
 				    execCommand: "docker restart daou-0-prometheus daou-1-prometheus kiwoom-0-prometheus"
 				)
