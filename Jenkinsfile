@@ -40,7 +40,7 @@ pipeline {
 		    continueOnError: false, failOnError: true,
 		    publishers: [
 			sshPublisherDesc(
-			    configName: "ansible-host",
+			    configName: "prometheus-host",
 			    verbose: true,
 			    transfers: [
 				sshTransfer(
