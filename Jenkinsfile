@@ -6,7 +6,7 @@ pipeline {
             steps {  
                 script { 
                     try{
-                        git url: "https://github.com/twoDeveloperrr/source-nodejs.git", branch: "master" 
+                        git url: "https://github.com/twoDeveloperrr/daou-project.git", branch: "master" 
                         env.cloneResult=true
                     }catch(error){
                         print(error)
@@ -27,8 +27,8 @@ pipeline {
 			    verbose: true,
 			    transfers: [
 				sshTransfer(
-				    sourceFiles: "/home/ubuntu/playbook/prometheus-install-nodeporter.yaml",
-				    removePrefix: "/home/ubuntu/playbook",
+				    sourceFiles: "playbook/prometheus-install-nodeporter.yaml",
+				    removePrefix: "playbook",
 				    remoteDirectory: "",
 				    execCommand: "ansible-playbook prometheus-install-nodeporter.yaml"
 				)
@@ -44,8 +44,8 @@ pipeline {
 			    verbose: true,
 			    transfers: [
 				sshTransfer(
-				    sourceFiles: "/home/ubuntu/prometheus/**",
-				    removePrefix: "/home/ubuntu/prometheus",
+				    sourceFiles: "prometheus/**",
+				    removePrefix: "prometheus",
 				    remoteDirectory: "",
 				    execCommand: "docker restart daou-0-prometheus daou-1-prometheus kiwoom-0-prometheus"
 				)
