@@ -33,18 +33,6 @@ pipeline {
 				    execCommand: "ansible-playbook prometheus-install-nodeporter.yaml"
 				)
 			    ]
-			)
-		    ]
-		)
-	    }
-	}
-
-	stage('SSH transfer prometheus-host') {
-	    steps([$class: 'BapSshPromotionPublisherPlugin']){
-		sshPublisher(
-		    continueOnError: false, failOnError: true,
-		    publishers: [
-			sshPublisherDesc(
 			    configName: "prometheus-host",
 			    verbose: true,
 			    transfers: [
@@ -53,12 +41,11 @@ pipeline {
 				    removePrefix: "prometheus",
 				    remoteDirectory: "",
 				    execCommand: "docker restart daou-0-prometheus daou-1-prometheus kiwoom-0-prometheus"
-				)
-			    ]
 			)
 		    ]
 		)
 	    }
 	}
+
   }
 }
