@@ -49,7 +49,7 @@ pipeline {
 			    verbose: true,
 			    transfers: [
 				sshTransfer(
-				    sourceFiles: "prometheus/prometheus-install-nodeporter.yaml",
+				    sourceFiles: "prometheus/**",
 				    removePrefix: "prometheus",
 				    remoteDirectory: "",
 				    execCommand: "docker restart daou-0-prometheus daou-1-prometheus kiwoom-0-prometheus"
