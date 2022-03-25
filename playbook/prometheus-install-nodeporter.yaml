@@ -9,3 +9,15 @@
     shell: sudo systemctl --now enable prometheus-node-exporter
   - name: Start prometheus-node-exporter
     shell: sudo systemctl --now start prometheus-node-exporter
+
+- name: Restart Prometheus Instance
+  hosts: prometheus_host
+  gather_facts: false
+
+  tasks:
+  - name: Docker Restart daou-0-prometheus
+    command: docker restart daou-0-prometheus
+  - name: Docker Restart daou-1-prometheus
+    command: docker restart daou-1-prometheus
+  - name: Docker Restart kiwoom-0-prometheus
+    command: docker restart kiwoom-0-prometheus
