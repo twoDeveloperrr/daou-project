@@ -3,6 +3,8 @@
   gather_facts: false
 
   tasks:
+  - name: Update
+    shell: sudo apt-get update
   - name: Install prometheus-node-exporter
     shell: sudo apt-get install prometheus-node-exporter -y
   - name: Enable prometheus-node-exporter
