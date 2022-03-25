@@ -17,7 +17,7 @@ pipeline {
           }
         }
 
-	stage('SSH transfer ansible-host') {
+	stage('SSH transfer ansible-host prometheus-host') {
 	    steps([$class: 'BapSshPromotionPublisherPlugin']){
 		sshPublisher(
 		    continueOnError: false, failOnError: true,
