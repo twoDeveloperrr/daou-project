@@ -1,0 +1,16 @@
+global:
+  resolve_timeout: 5m
+  slack_api_url: '<your slack webook url>'
+
+route:
+  receiver: 'two1developer'
+  repeat_interval: 1h
+
+receivers:
+- name: 'two1developer'
+  slack_configs:
+  - channel: '#_monitoring'
+    send_resolved: true
+    title: '{{ range.Alerts }}{{ .Annotations.summary }}\n{{ end }}'
+    text: '{{ range.Alerts }}{{ .Annotations.description }}\n{{ end }}'
+

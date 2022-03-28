@@ -1,0 +1,236 @@
+version: '3.2'
+services:
+  daou-0-prometheus:
+    image: quay.io/prometheus/prometheus:v2.20.0
+    network_mode: "host"
+    container_name: daou-0-prometheus
+    user: root
+    volumes:
+      - ./prometheus/daou-0-prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./data/daou-0-prometheus-data:/prometheus
+      - ./prometheus/rules/alertmanager-exporter.yaml:/etc/prometheus/alertmanager-exporter.yaml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=1000d'
+      - '--storage.tsdb.max-block-duration=2h'
+      - '--storage.tsdb.min-block-duration=2h'
+      - '--web.listen-address=:9090'
+      - '--web.external-url=${AWS_ELB}:9090'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    restart: unless-stopped
+
+  daou-1-prometheus:
+    image: quay.io/prometheus/prometheus:v2.20.0
+    network_mode: "host"
+    container_name: daou-1-prometheus
+    user: root
+    volumes:
+      - ./prometheus/daou-1-prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./data/daou-1-prometheus-data:/prometheus
+      - ./prometheus/rules/alertmanager-exporter.yaml:/etc/prometheus/alertmanager-exporter.yaml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=1000d'
+      - '--storage.tsdb.max-block-duration=2h'
+      - '--storage.tsdb.min-block-duration=2h'
+      - '--web.listen-address=:9091'
+      - '--web.external-url=${AWS_ELB}:9091'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    restart: unless-stopped
+
+  kiwoom-0-prometheus:
+    image: quay.io/prometheus/prometheus:v2.20.0
+    network_mode: "host"
+    container_name: kiwoom-0-prometheus
+    user: root
+    volumes:
+      - ./prometheus/kiwoom-0-prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./data/kiwoom-0-prometheus-data:/prometheus
+      - ./prometheus/rules/alertmanager-exporter.yaml:/etc/prometheus/alertmanager-exporter.yaml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=1000d'
+      - '--storage.tsdb.max-block-duration=2h'
+      - '--storage.tsdb.min-block-duration=2h'
+      - '--web.listen-address=:9092'
+      - '--web.external-url=${AWS_ELB}:9092'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2020-09-10T22-02-45Z
+    container_name: minio
+    volumes:
+      - ./data/minio:/data
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY} 
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    command: server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  daou-0-prometheus-sidecar:
+    image: quay.io/thanos/thanos:v0.23.1
+    network_mode: "host"
+    container_name: daou-0-prometheus-sidecar
+    user: root
+    volumes:
+      - ./prometheus/daou-0-prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./data/daou-0-prometheus-data:/prometheus
+      # - ./data/minio-bucket.yaml:/etc/thanos/minio-bucket.yaml
+    command:
+      - 'sidecar'
+      - '--tsdb.path=/prometheus'
+      #- '--objstore.config-file=/etc/thanos/minio-bucket.yaml'
+      - |
+        --objstore.config=type: S3
+        config:
+            bucket: thanos
+            access_key: ${MINIO_ACCESS_KEY}
+            secret_key: ${MINIO_SECRET_KEY}
+            endpoint: ${AWS_ELB}:9000
+            insecure: true
+      - '--shipper.upload-compacted'
+      - '--http-address=0.0.0.0:19091'
+      - '--grpc-address=0.0.0.0:19191'
+      - '--reloader.config-file=/etc/prometheus/prometheus.yaml'
+      - '--prometheus.url=http://127.0.0.1:9090'
+
+  daou-1-prometheus-sidecar:
+    image: quay.io/thanos/thanos:v0.23.1
+    network_mode: "host"
+    container_name: daou-1-prometheus-sidecar
+    user: root
+    volumes:
+      - ./prometheus/daou-1-prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./data/daou-1-prometheus-data:/prometheus
+      #- ./data/minio-bucket.yaml:/etc/thanos/minio-bucket.yaml
+    command:
+      - 'sidecar'
+      - '--tsdb.path=/prometheus'
+      #- '--objstore.config-file=/etc/thanos/minio-bucket.yaml'
+      - |
+        --objstore.config=type: S3
+        config:
+            bucket: thanos
+            access_key: ${MINIO_ACCESS_KEY}
+            secret_key: ${MINIO_SECRET_KEY}
+            endpoint: ${AWS_ELB}:9000
+            insecure: true
+      - '--shipper.upload-compacted'
+      - '--http-address=0.0.0.0:19092'
+      - '--grpc-address=0.0.0.0:19192'
+      - '--reloader.config-file=/etc/prometheus/prometheus.yaml'
+      - '--prometheus.url=http://127.0.0.1:9091'
+
+  kiwoom-0-prometheus-sidecar:
+    image: quay.io/thanos/thanos:v0.23.1
+    network_mode: "host"
+    container_name: kiwoom-0-prometheus-sidecar
+    user: root
+    volumes:
+      - ./prometheus/kiwoom-0-prometheus.yaml:/etc/prometheus/prometheus.yaml
+      - ./data/kiwoom-0-prometheus-data:/prometheus
+      #- ./data/minio-bucket.yaml:/etc/thanos/minio-bucket.yaml
+    command:
+      - 'sidecar'
+      - '--tsdb.path=/prometheus'
+      #- '--objstore.config-file=/etc/thanos/minio-bucket.yaml'
+      - |
+        --objstore.config=type: S3
+        config:
+            bucket: thanos
+            access_key: ${MINIO_ACCESS_KEY}
+            secret_key: ${MINIO_SECRET_KEY}
+            endpoint: ${AWS_ELB}:9000
+            insecure: true
+      - '--shipper.upload-compacted'
+      - '--http-address=0.0.0.0:19093'
+      - '--grpc-address=0.0.0.0:19193'
+      - '--reloader.config-file=/etc/prometheus/prometheus.yaml'
+      - '--prometheus.url=http://127.0.0.1:9092'
+
+  store-gateway:
+    image: quay.io/thanos/thanos:v0.23.1
+    network_mode: "host"
+    container_name: store-gateway
+    # volumes:
+      #- ./data/minio-bucket.yaml:/etc/thanos/minio-bucket.yaml
+    command:
+      - 'store'
+      #- '--objstore.config-file=/etc/thanos/minio-bucket.yaml'
+      - |
+        --objstore.config=type: S3
+        config:
+            bucket: thanos
+            access_key: ${MINIO_ACCESS_KEY}
+            secret_key: ${MINIO_SECRET_KEY}
+            endpoint: ${AWS_ELB}:9000
+            insecure: true
+      - '--http-address=0.0.0.0:19094'
+      - '--grpc-address=0.0.0.0:19194'
+    depends_on:
+      - minio
+
+  querier:
+    image: quay.io/thanos/thanos:v0.23.1
+    network_mode: "host"
+    container_name: querier
+    command:
+      - 'query'
+      - '--http-address=0.0.0.0:19090'
+      - '--grpc-address=0.0.0.0:19190'
+      - '--query.replica-label=replica'
+      - '--store=127.0.0.1:19191'
+      - '--store=127.0.0.1:19192'
+      - '--store=127.0.0.1:19193'
+      - '--store=127.0.0.1:19194'
+
+  compactor:
+    image: quay.io/thanos/thanos:v0.23.1
+    network_mode: "host"
+    container_name: compactor
+    # volumes:
+      #- ./data/minio-bucket.yaml:/etc/thanos/minio-bucket.yaml
+    command:
+      - 'compact'
+      - '--wait'
+      - '--wait-interval=30s'
+      - '--consistency-delay=0s'
+      #- '--objstore.config-file=/etc/thanos/minio-bucket.yaml'
+      - |
+        --objstore.config=type: S3
+        config:
+            bucket: thanos
+            access_key: ${MINIO_ACCESS_KEY}
+            secret_key: ${MINIO_SECRET_KEY}
+            endpoint: ${AWS_ELB}:9000
+            insecure: true
+      - '--http-address=0.0.0.0:19095'
+    depends_on:
+      - minio
+
+  alertmanager:
+    image: quay.io/prometheus/alertmanager:v0.22.0
+    container_name: alertmanager
+    user: root
+    volumes:
+      - ./prometheus/alertmanager.yaml:/etc/prometheus/alertmanager.yaml
+      - ./data/alertmanager:/data
+    command:
+      - '--config.file=/etc/prometheus/alertmanager.yaml'
+    restart: unless-stopped
+    ports:
+      - '9093:9093'
+    restart: always
