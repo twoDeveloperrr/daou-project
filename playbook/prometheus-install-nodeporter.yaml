@@ -1,6 +1,6 @@
 - name: Node Port Install
   hosts: nodeporter_host
-  gather_facts: false
+  gather_facts: true
 
   tasks:
   - name: Update
