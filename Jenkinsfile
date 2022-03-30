@@ -44,8 +44,8 @@ pipeline {
 			    verbose: true,
 			    transfers: [
 				sshTransfer(
-				    sourceFiles: "",
-				    removePrefix: "",
+				    sourceFiles: "monitoring-server/prometheus/**.yaml",
+				    removePrefix: "monitoring-server",
 				    remoteDirectory: "",
 				    execCommand: "docker restart daou-0-prometheus daou-1-prometheus kiwoom-0-prometheus"
 				)
