@@ -32,4 +32,5 @@ scrape_configs:
     static_configs:
       - targets: ['127.0.0.1:19094','127.0.0.1:19094']
   - job_name: 'compactor'
+    static_configs:
       - targets: ['127.0.0.1:19095','127.0.0.1:19095']
