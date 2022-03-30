@@ -72,8 +72,8 @@ services:
       - "9000:9000"
     environment:
       MINIO_PROMETHEUS_AUTH_TYPE: public
-      MINIO_ACCESS_KEY: daou 
-      MINIO_SECRET_KEY: daoudaou
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY} 
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     command: server /data
    # healthcheck:
    #   test: ["CMD", "curl", "-f", "${AWS_ELB}:9000/minio/health/live"]
