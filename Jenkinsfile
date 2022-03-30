@@ -44,8 +44,8 @@ pipeline {
 			    verbose: true,
 			    transfers: [
 				sshTransfer(
-				    sourceFiles: "prometheus/**",
-				    removePrefix: "prometheus",
+				    sourceFiles: "",
+				    removePrefix: "",
 				    remoteDirectory: "",
 				    execCommand: "docker restart daou-0-prometheus daou-1-prometheus kiwoom-0-prometheus"
 				)
