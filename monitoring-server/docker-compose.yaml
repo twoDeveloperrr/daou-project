@@ -71,14 +71,15 @@ services:
     ports:
       - "9000:9000"
     environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY} 
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_PROMETHEUS_AUTH_TYPE: public
+      MINIO_ACCESS_KEY: daou 
+      MINIO_SECRET_KEY: daoudaou
     command: server /data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+   # healthcheck:
+   #   test: ["CMD", "curl", "-f", "${AWS_ELB}:9000/minio/health/live"]
+   #   interval: 30s
+   #   timeout: 20s
+   #   retries: 3
 
   daou-0-prometheus-sidecar:
     image: quay.io/thanos/thanos:v0.23.1
@@ -100,6 +101,7 @@ services:
             access_key: ${MINIO_ACCESS_KEY}
             secret_key: ${MINIO_SECRET_KEY}
             endpoint: ${AWS_ELB}:9000
+            signature_version2: true
             insecure: true
       - '--shipper.upload-compacted'
       - '--http-address=0.0.0.0:19091'
@@ -127,6 +129,7 @@ services:
             access_key: ${MINIO_ACCESS_KEY}
             secret_key: ${MINIO_SECRET_KEY}
             endpoint: ${AWS_ELB}:9000
+            signature_version2: true
             insecure: true
       - '--shipper.upload-compacted'
       - '--http-address=0.0.0.0:19092'
@@ -154,6 +157,7 @@ services:
             access_key: ${MINIO_ACCESS_KEY}
             secret_key: ${MINIO_SECRET_KEY}
             endpoint: ${AWS_ELB}:9000
+            signature_version2: true
             insecure: true
       - '--shipper.upload-compacted'
       - '--http-address=0.0.0.0:19093'
@@ -165,6 +169,7 @@ services:
     image: quay.io/thanos/thanos:v0.23.1
     network_mode: "host"
     container_name: store-gateway
+    user: root
     # volumes:
       #- ./data/minio-bucket.yaml:/etc/thanos/minio-bucket.yaml
     command:
@@ -177,6 +182,7 @@ services:
             access_key: ${MINIO_ACCESS_KEY}
             secret_key: ${MINIO_SECRET_KEY}
             endpoint: ${AWS_ELB}:9000
+            signature_version2: true
             insecure: true
       - '--http-address=0.0.0.0:19094'
       - '--grpc-address=0.0.0.0:19194'
@@ -216,6 +222,7 @@ services:
             access_key: ${MINIO_ACCESS_KEY}
             secret_key: ${MINIO_SECRET_KEY}
             endpoint: ${AWS_ELB}:9000
+            signature_version2: true
             insecure: true
       - '--http-address=0.0.0.0:19095'
     depends_on:
