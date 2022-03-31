@@ -17,7 +17,7 @@ pipeline {
           }
         }
 
-	stage('SSH transfer ansible-host prometheus-host') {
+	stage('Install Node Exporter on Target Server and Register Target Server in Prometheus ') {
 	    steps([$class: 'BapSshPromotionPublisherPlugin']){
 		sshPublisher(
 		    continueOnError: false, failOnError: true,
