@@ -1,12 +1,3 @@
 groups:
 - name: alertmanager-exporter 
   rules:
-  - alert: Memory
-    expr: node_memory_active > 10000
-    for: 5s
-    labels:
-      severity: major
-    annotations:
-      summary: High Memory Usage on {{ $labels.instance }}
-      identifier: "{{ $labels.instance }}"
-      description: "{{ $labels.job }} Memory Usage: {{ $value }}"
