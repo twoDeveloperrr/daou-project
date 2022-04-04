@@ -1,3 +1,11 @@
 groups:
 - name: alertmanager-exporter 
   rules:
+  - alert: Host out of Memory
+    expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 25
+    for: 25s
+    labels:
+      severity: warning
+    annotations:
+      summary: 메모리가 부족합니다. (Target Server {{ $labels.instance }})
+      description: "Target Server의 메모리가 25%도 남지 않았습니다.( <25% 남음) \n 현재 메모리 값 = {{ $value }} \n Target Server = {{ $labels }}"
