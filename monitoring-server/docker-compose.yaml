@@ -241,3 +241,35 @@ services:
     ports:
       - '9093:9093'
     restart: always
+
+  thanos_rule:
+    image: quay.io/thanos/thanos:v0.23.1
+    container_name: thanos_rule
+    volumes:
+      - ./data/rule:/data
+      - ./prometheus/rules/alertmanager-exporter.yaml:/etc/prometheus/alertmanager-exporter.yaml
+    command:
+      - "rule"
+      - "--log.level=debug"
+      - |
+        --objstore.config=type: S3
+        config:
+          bucket: thanos
+          access_key: ${MINIO_ACCESS_KEY}
+          secret_key: ${MINIO_SECRET_KEY}
+          endpoint: ${AWS_ELB}:9000
+          signature_version2: true
+          insecure: true
+      - "--data-dir=/data"
+      - "--rule-file=/etc/prometheus/alertmanager-exporter.yaml"
+      - "--alert.query-url=${AWS_ELB}:19090"
+      - "--alertmanagers.url=${AWS_ELB}:9093"
+      - "--query=${AWS_ELB}:19090"
+      - '--http-address=0.0.0.0:19096'
+      - '--grpc-address=0.0.0.0:19196'
+    depends_on:
+      - minio
+    restart: always
+    ports:
+      - '19096:19096'
+
